@@ -16,11 +16,11 @@ pipeline {
             }
         }
 
-        stage("Git Checkout") {
-            steps {
-                git url: 'https://github.com/Arunasri-0096/devops-zomato.git', branch: 'main', credentialsId: 'github-CRED'
-            }
-        }
+       stage("Git Checkout") {
+    steps {
+        git url: 'https://github.com/Arunasri-0096/devops-zomato.git', branch: 'master'
+    }
+}
 
         stage("Install Dependencies") {
             steps {
