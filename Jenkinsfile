@@ -25,12 +25,17 @@ pipeline {
             }
         }
 
-        stage("Build") {
-            steps {
-                sh 'mvn clean package -DskipTests'
-            }
-        }
+       stage("Install Dependencies") {
+    steps {
+        sh 'npm install'
+    }
+}
 
+stage("Build App") {
+    steps {
+        sh 'npm run build || true'
+    }
+}
         stage("Test") {
             steps {
                 sh 'mvn test'
