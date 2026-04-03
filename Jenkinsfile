@@ -1,8 +1,7 @@
 pipeline {
     agent any
-
-    tools {
-    nodejs 'node16'
+  tools {
+    nodejs 'node16.19' // must match the NodeJS installation name in Jenkins
 }
     environment {
         TRIVY_REPORT = 'trivy.txt'
