@@ -21,7 +21,7 @@ pipeline {
 
         stage("Git Checkout") {
             steps {
-                git url: 'https://github.com/Arunasri-0096/devops-zomato.git', branch: 'main'
+                git url: 'https://github.com/Arunasri-0096/devops-zomato.git', branch: 'master'
             }
         }
 
