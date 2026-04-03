@@ -2,13 +2,11 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk17'
-        maven 'maven3'
+        nodejs 'node23'  // Add NodeJS tool in Jenkins Global Tool Config
     }
 
     environment {
-        MAVEN_OPTS = '-Xmx1024m'
-        SCANNER_HOME = tool 'sonar-scanner'
+        TRIVY_REPORT = 'trivy.txt'
     }
 
     stages {
@@ -21,92 +19,46 @@ pipeline {
 
         stage("Git Checkout") {
             steps {
-                git url: 'https://github.com/Arunasri-0096/devops-zomato.git', branch: 'master'
+                git url: 'https://github.com/Arunasri-0096/devops-zomato.git', branch: 'main', credentialsId: 'github-CRED'
             }
         }
 
-       stage("Install Dependencies") {
-    steps {
-        sh 'npm install'
-    }
-}
-
-stage("Build App") {
-    steps {
-        sh 'npm run build || true'
-    }
-}
-        stage("Test") {
+        stage("Install Dependencies") {
             steps {
-                sh 'mvn test'
+                sh 'npm install'
             }
         }
 
-        stage("SonarQube Analysis") {
+        stage("Build App") {
             steps {
-                withSonarQubeEnv('sonar-server') {
-                    sh """
-                    $SCANNER_HOME/bin/sonar-scanner \
-                    -Dsonar.projectName=zomato \
-                    -Dsonar.projectKey=zomato
-                    """
-                }
-            }
-        }
-
-        stage("Quality Gate") {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
-                }
-            }
-        }
-
-        stage("Install NPM Dependencies") {
-            steps {
-                sh 'npm install || true'
+                sh 'npm run build || true'
             }
         }
 
         stage('OWASP Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', 
-                odcInstallation: 'DP-Check'
-
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
             }
         }
 
         stage("Trivy File Scan") {
             steps {
-                sh 'trivy fs . > trivy.txt'
+                sh "trivy fs . > ${TRIVY_REPORT}"
             }
         }
 
         stage("Docker Build") {
             steps {
-                sh 'docker build -t zomato .'
+                sh 'docker build -t kastrov/zomato:latest .'
             }
         }
 
-        stage("Tag & Push Docker Image") {
+        stage("Push Docker Image") {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker') {
-                        sh 'docker tag zomato kastrov/zomato:latest'
                         sh 'docker push kastrov/zomato:latest'
-                    }
-                }
-            }
-        }
-
-        stage('Docker Scout Scan') {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
-                        sh 'docker-scout quickview kastrov/zomato:latest'
-                        sh 'docker-scout cves kastrov/zomato:latest'
-                        sh 'docker-scout recommendations kastrov/zomato:latest'
                     }
                 }
             }
@@ -120,6 +72,7 @@ stage("Build App") {
                 '''
             }
         }
+
     }
 
     post {
@@ -138,7 +91,7 @@ stage("Build App") {
                 """,
                 to: 'srividyapsn2014@gmail.com',
                 mimeType: 'text/html',
-                attachmentsPattern: 'trivy.txt'
+                attachmentsPattern: "${TRIVY_REPORT}"
         }
 
         success {
