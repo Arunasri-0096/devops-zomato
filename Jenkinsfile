@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'node23'  // Add NodeJS tool in Jenkins Global Tool Config
-    }
-
+    nodejs 'node16'
+}
     environment {
         TRIVY_REPORT = 'trivy.txt'
     }
