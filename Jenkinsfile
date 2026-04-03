@@ -20,7 +20,12 @@ pipeline {
         git url: 'https://github.com/Arunasri-0096/devops-zomato.git', branch: 'master'
     }
 }
-
+stage("Check Tool") {
+        steps {
+            sh 'ls -l'
+            sh 'which dependency-check || echo "Not Found"'
+        }
+    }
         stage("Install Dependencies") {
             steps {
                 sh 'npm install'
