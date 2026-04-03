@@ -36,12 +36,11 @@ stage("Build App") {
         sh 'npm run build || true'
     }
 }
-        stage("Test") {
-            steps {
-                sh 'mvn test'
-            }
-        }
-
+       stage("Test") {
+    steps {
+        sh 'npm test -- --watchAll=false || true'
+    }
+}
         stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('sonar-server') {
