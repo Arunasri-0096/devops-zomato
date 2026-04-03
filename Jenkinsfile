@@ -5,7 +5,7 @@ pipeline {
         nodejs 'node23'
     }
     environment {
-        SCANNER_HOME=tool 'sonar-scanner'
+        SCANNER_HOME=sq 'sonar-scanner'
     }
     stages {
         stage ("clean workspace") {
