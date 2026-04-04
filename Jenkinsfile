@@ -77,7 +77,7 @@ pipeline {
             }
         }
 
-        stage("Deploy Container") {
+        stage("grafana") {
             steps {
                 sh '''
                 docker rm -f zomato || true
