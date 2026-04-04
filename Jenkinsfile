@@ -63,15 +63,15 @@ pipeline {
 
         stage("Docker Build") {
             steps {
-                sh 'docker build -t kastrov/zomato:latest .'
+                sh 'docker build -t arunasri@0096/zomato:latest .'
             }
         }
 
         stage("Push Docker Image") {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker') {
-                        sh 'docker push kastrov/zomato:latest'
+                    withDockerRegistry(credentialsId: 'docker-CRED') {
+                        sh 'docker push arunasri@0096/zomato:latest'
                     }
                 }
             }
@@ -81,7 +81,7 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f zomato || true
-                docker run -d --name zomato -p 3000:3000 kastrov/zomato:latest
+                docker run -d --name zomato -p 3000:3000 arunasri@0096/zomato:latest
                 '''
             }
         }
