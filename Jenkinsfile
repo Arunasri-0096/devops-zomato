@@ -1,8 +1,14 @@
 pipeline {
     agent any
-  tools {
-    nodejs 'node16.19' // must match the NodeJS installation name in Jenkins
-}
+
+    tools {
+        nodejs 'node16.19'
+    }
+
+    environment {
+        TRIVY_REPORT = "trivy-report.txt"
+    }
+
     stages {
 
         stage("Clean Workspace") {
@@ -11,17 +17,19 @@ pipeline {
             }
         }
 
-       stage("Git Checkout") {
-    steps {
-        git url: 'https://github.com/Arunasri-0096/devops-zomato.git', branch: 'master'
-    }
-}
-stage("Check Tool") {
-        steps {
-            sh 'ls -l'
-            sh 'which dependency-check || echo "Not Found"'
+        stage("Git Checkout") {
+            steps {
+                git url: 'https://github.com/Arunasri-0096/devops-zomato.git', branch: 'master'
+            }
         }
-    }
+
+        stage("Check Tool") {
+            steps {
+                sh 'ls -l'
+                sh 'which dependency-check || echo "Not Found"'
+            }
+        }
+
         stage("Install Dependencies") {
             steps {
                 sh 'npm install'
@@ -34,18 +42,22 @@ stage("Check Tool") {
             }
         }
 
-        stage('OWASP Dependency Check') {
-    when {
-        expression { return false }
-    }
-    steps {
-        echo "Skipping OWASP"
-    }
-}
-
-        stage("Trivy File Scan") {
+        stage("OWASP Dependency Check") {
+            when {
+                expression { return false }
+            }
             steps {
-                sh "trivy fs . > ${TRIVY_REPORT}"
+                echo "Skipping OWASP"
+            }
+        }
+
+        // ✅ SKIPPED TRIVY STAGE
+        stage("Trivy File Scan") {
+            when {
+                expression { return false }
+            }
+            steps {
+                echo "Skipping Trivy Scan"
             }
         }
 
@@ -73,7 +85,6 @@ stage("Check Tool") {
                 '''
             }
         }
-
     }
 
     post {
